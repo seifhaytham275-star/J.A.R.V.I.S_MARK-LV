@@ -10,55 +10,66 @@ st.set_page_config(
     layout="centered"
 )
 
-st.title("🤖 J.A.R.V.I.S. Bilingual Mobile Bridge")
-st.write("أهلاً بك يا سيف. جارفيس جاهز الآن باللغتين العربية والإنجليزية مع النطق الصوتي المباشر.")
+st.title("🤖 J.A.R.V.I.S. Mobile Bridge")
+st.write("Welcome back, Seif. JARVIS is ready and fully bilingual (Arabic & English) with direct voice output.")
 
-# الشريط الجانبي للإعدادات واختيار الصوت واللغة
-st.sidebar.title("⚙️ إعدادات جارفيس")
-
-language_choice = st.sidebar.selectbox(
-    "لغة التحدث الافتراضية:",
-    ["العربية (Arabic)", "English"]
-)
-
-voice_choice = st.sidebar.selectbox(
-    "اختر نبرة الصوت:",
-    ["Puck (Deep/قوي)", "Charon (Formal/رسمي)", "Kore (Assistant/مساعد)", "Fenrir (Firm/حازم)"]
-)
-
-api_key = st.sidebar.text_input("Gemini API Key", type="password")
-
-if not api_key:
+# Initialize session state for API key if not already present
+if "api_key" not in st.session_state:
+    st.session_state.api_key = ""
+    # Try automatic loading from local config if available
     try:
         config_path = Path("config/api_keys.json")
         if config_path.exists():
             with open(config_path, "r", encoding="utf-8") as f:
-                api_key = json.load(f).get("gemini_api_key", "")
+                st.session_state.api_key = json.load(f).get("gemini_api_key", "")
     except Exception:
         pass
 
-st.markdown("---")
-st.subheader("💬 المحادثة والأوامر")
+# Sidebar Settings
+st.sidebar.title("⚙️ JARVIS Settings")
 
-# تحديد لغة التوجيه للذكاء الاصطناعي بناءً على اختيار المستخدم
+language_choice = st.sidebar.selectbox(
+    "Default Response Language:",
+    ["English", "Arabic (العربية)"]
+)
+
+voice_choice = st.sidebar.selectbox(
+    "Voice Tone:",
+    ["Puck (Deep/Powerful)", "Charon (Formal/Calm)", "Kore (Assistant)", "Fenrir (Firm)"]
+)
+
+# One-time API key input using session state
+entered_api_key = st.sidebar.text_input(
+    "Gemini API Key", 
+    value=st.session_state.api_key, 
+    type="password",
+    help="Enter your API key once. It will be saved for this session."
+)
+
+if entered_api_key:
+    st.session_state.api_key = entered_api_key
+
+st.markdown("---")
+st.subheader("💬 Chat & Commands")
+
 system_instruction = (
     "You are JARVIS, Tony Stark's AI assistant. "
     "You are fully bilingual and can seamlessly understand and reply in both Arabic and English depending on what the user speaks or prefers. "
     "Be concise, direct, and professional."
 )
 
-user_input = st.text_input("اكتب أمرك بالعربية أو الإنجليزية / Type your command:")
-uploaded_file = st.file_uploader("📸 مشاركة شاشة أو صورة للتحليل / Upload screen or image:", type=["png", "jpg", "jpeg"])
+user_input = st.text_input("Type your command in English or Arabic:")
+uploaded_file = st.file_uploader("📸 Share screen or upload image for analysis:", type=["png", "jpg", "jpeg"])
 
-if st.button("تنفيذ / Execute"):
-    if not api_key:
-        st.error("الرجاء إدخال مفتاح الـ API في الشريط الجانبي أولاً.")
+if st.button("Execute / Send"):
+    if not st.session_state.api_key:
+        st.error("Please enter your Gemini API Key in the sidebar first.")
     elif not user_input and not uploaded_file:
-        st.warning("الرجاء كتابة أمر أو إرفاق صورة.")
+        st.warning("Please type a command or upload an image.")
     else:
         try:
-            with st.spinner("جارفيس قيد التنفيذ / JARVIS is processing..."):
-                client = genai.Client(api_key=api_key)
+            with st.spinner("JARVIS is processing..."):
+                client = genai.Client(api_key=st.session_state.api_key)
                 
                 contents = []
                 if user_input:
@@ -73,7 +84,6 @@ if st.button("تنفيذ / Execute"):
                         )
                     )
                 
-                # استدعاء النموذج مع توجيهات اللغتين
                 response = client.models.generate_content(
                     model="gemini-2.5-flash",
                     contents=contents,
@@ -83,14 +93,11 @@ if st.button("تنفيذ / Execute"):
                 )
                 
                 reply_text = response.text
-                st.success("رد جارفيس / JARVIS Response:")
+                st.success("JARVIS Response:")
                 st.write(reply_text)
                 
-                # تشغيل الصوت تلقائياً عبر متصفح الموبايل (Web Speech API)
-                # كود JavaScript خفيف ليقوم بقراءة الرد بصوت واضح
-                lang_code = "ar-SA" if "العربية" in language_choice else "en-US"
-                
-                # تنظيف النص من الرموز لكي لا تقرأ خطأ
+                # Text-to-speech for mobile browser
+                lang_code = "ar-SA" if "Arabic" in language_choice else "en-US"
                 clean_reply = reply_text.replace('"', '').replace("'", "").replace("\n", " ")
                 
                 sound_html = f"""
@@ -108,7 +115,7 @@ if st.button("تنفيذ / Execute"):
                 st.components.v1.html(sound_html, height=0)
                 
         except Exception as e:
-            st.error(f"حدث خطأ أثناء الاتصال: {e}")
+            st.error(f"An error occurred: {e}")
 
 st.sidebar.markdown("---")
-st.sidebar.info("💡 جارفيس الآن يفهم العربي والإنجليزي تماماً، وينطق الإجابات صوتياً مباشرة من متصفح هاتفك!")
+st.sidebar.info("💡 Your API key is saved for this session, so you only need to type it once!")
