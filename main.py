@@ -10,57 +10,89 @@ st.set_page_config(
     layout="centered"
 )
 
-# Clean, professional, and minimalist dark theme styling (No logos, pure focus on chat)
+# Ultra-Modern Clean Dark UI (Custom CSS Injection)
 st.markdown("""
     <style>
+    /* Global Theme */
     .stApp {
-        background-color: #0d1117;
-        color: #e6edf3;
+        background-color: #080a0f;
+        color: #e2e8f0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
+    
+    /* Hide Streamlit elements */
     header {visibility: hidden;}
     footer {visibility: hidden;}
     
     /* Sleek Sidebar */
     section[data-testid="stSidebar"] {
-        background-color: #161b22;
-        border-right: 1px solid #30363d;
+        background-color: #0f172a;
+        border-right: 1px solid #1e293b;
     }
     
-    /* Clean Input Fields */
+    /* Modern Input Fields */
     .stTextInput>div>div>input {
-        background-color: #21262d !important;
-        color: #f0f6fc !important;
-        border: 1px solid #30363d !important;
-        border-radius: 6px !important;
+        background-color: #111827 !important;
+        color: #f8fafc !important;
+        border: 1px solid #374151 !important;
+        border-radius: 10px !important;
+        padding: 10px 14px !important;
     }
+    .stTextInput>div>div>input:focus {
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+    }
+    
+    /* Modern Selectbox */
     .stSelectbox>div>div>div {
-        background-color: #21262d !important;
-        color: #f0f6fc !important;
-        border: 1px solid #30363d !important;
-        border-radius: 6px !important;
+        background-color: #111827 !important;
+        color: #f8fafc !important;
+        border: 1px solid #374151 !important;
+        border-radius: 10px !important;
     }
 
-    /* Minimalist Button */
+    /* Clean Compact File Uploader */
+    section[data-testid="stFileUploadDropzone"] {
+        background-color: #111827 !important;
+        border: 1px dashed #374151 !important;
+        border-radius: 10px !important;
+        padding: 10px !important;
+    }
+    
+    /* Modern Action Button */
     .stButton>button {
-        background-color: #21262d !important;
-        color: #c9d1d9 !important;
-        border: 1px solid #30363d !important;
-        border-radius: 6px !important;
-        font-weight: 500 !important;
+        background: linear-gradient(135deg, #1e293b, #0f172a) !important;
+        color: #f8fafc !important;
+        border: 1px solid #334155 !important;
+        border-radius: 10px !important;
+        font-weight: 600 !important;
+        padding: 8px 16px !important;
         width: 100% !important;
-        transition: 0.2s;
+        transition: all 0.2s ease;
     }
     .stButton>button:hover {
-        background-color: #30363d !important;
-        color: #ffffff !important;
-        border-color: #8b949e !important;
+        background: linear-gradient(135deg, #334155, #1e293b) !important;
+        border-color: #64748b !important;
+    }
+
+    /* Chat Messages Styling */
+    div[data-testid="stChatMessage"] {
+        background-color: #111827;
+        border: 1px solid #1f2937;
+        border-radius: 12px;
+        padding: 12px;
+        margin-bottom: 10px;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# Title updated cleanly to Mark LV without extra logos
-st.title("J.A.R.V.I.S. Mark LV")
-st.caption("Secure Mobile Interface")
+# Minimal Modern Header
+st.markdown("""
+    <div style='text-align: center; padding: 1rem 0;'>
+        <h1 style='color: #f8fafc; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 0;'>J.A.R.V.I.S. Mark LV</h1>
+        <p style='color: #64748b; font-size: 0.9rem; margin-top: 4px;'>Neural Cloud Interface</p>
+    </div>
+""", unsafe_allow_html=True)
 
 # Initialize session state for API key and Chat History
 if "api_key" not in st.session_state:
@@ -76,9 +108,9 @@ if "api_key" not in st.session_state:
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Sidebar settings (Clean & Minimal)
+# Modern Minimal Sidebar
 with st.sidebar:
-    st.markdown("### Settings")
+    st.markdown("<h3 style='color: #f8fafc;'>System Preferences</h3>", unsafe_allow_html=True)
     
     language_choice = st.selectbox(
         "Response Language",
@@ -99,21 +131,21 @@ with st.sidebar:
     if entered_api_key:
         st.session_state.api_key = entered_api_key
         
-    st.markdown("---")
+    st.markdown("<br>", unsafe_allow_html=True)
     if st.button("Clear Conversation"):
         st.session_state.messages = []
         st.rerun()
 
 st.markdown("---")
 
-# Display historical chat messages in an elegant chat container
+# Display historical chat messages in clean cards
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# Chat input bar at the bottom
-user_input = st.chat_input("Type a message...")
-uploaded_file = st.file_uploader("Attach image / screen (Optional):", type=["png", "jpg", "jpeg"])
+# Clean Chat Input & Optional Attachment
+user_input = st.chat_input("Message JARVIS...")
+uploaded_file = st.file_uploader("Attach file / screen capture (optional):", type=["png", "jpg", "jpeg"])
 
 if user_input or uploaded_file:
     if not st.session_state.api_key:
