@@ -2,7 +2,6 @@ import platform as _platform
 import subprocess as _subprocess
 
 # ── Nuclear: force CREATE_NO_WINDOW on EVERY subprocess call on Windows ───────
-# This patches Popen itself, so no per-file flag is needed anywhere.
 if _platform.system() == "Windows":
     _OrigPopen = _subprocess.Popen
 
@@ -24,7 +23,7 @@ for _stream in ("stdout", "stderr"):
         if _s is not None and hasattr(_s, "reconfigure"):
             _s.reconfigure(encoding="utf-8", errors="replace")
     except Exception:
-        pass          # pythonw / redirected pipes / anything exotic — never fatal
+        pass
 
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -37,7 +36,7 @@ import traceback
 from datetime import datetime
 from pathlib import Path
 
-# تم تعديل هذا الجزء ليعمل بلطف على السحابة (Streamlit) بدون أخطاء PortAudio
+# حماية استيراد الـ sounddevice للعمل على السحابة (Streamlit) بدون أخطاء PortAudio
 try:
     import sounddevice as sd
 except (ImportError, OSError):
@@ -511,4 +510,14 @@ class JarvisLive:
         self.ui.on_wake_install  = self._ui_wake_install
 
     def _wake_state(self) -> dict:
-        ready = bool(self._wake
+        ready = bool(self._wake_detector and self._wake_detector.ready) or wake_is_ready()
+        return {"enabled": self._wake_enabled, "awake": self._awake, "ready": ready}
+
+    def _ensure_wake_detector(self) -> bool:
+        if self._wake_detector is None:
+            self._wake_detector = WakeWordDetector(
+                on_detect=self._on_wake_detected,
+                logger=lambda m: print(f"[Wake] {m}"),
+                notify=lambda m: self.ui.write_log(f"SYS: {m}")
+            )
+        return self._wake_detector.ready
