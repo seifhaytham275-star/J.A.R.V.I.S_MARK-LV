@@ -5,47 +5,88 @@ from google import genai
 from google.genai import types
 
 st.set_page_config(
-    page_title="J.A.R.V.I.S. Command Interface",
+    page_title="J.A.R.V.I.S. Core Interface",
     page_icon="⚡",
     layout="centered"
 )
 
-# Custom Cyberpunk / Jarvis Dark Theme Styling
+# Complete Custom High-Tech Dark Theme
 st.markdown("""
     <style>
-    .main {
-        background-color: #0e1117;
-        color: #c9d1d9;
+    /* Main Background & Text Color */
+    .stApp {
+        background-color: #090c10;
+        color: #e6edf3;
     }
+    
+    /* Hide Streamlit Header & Footer elements for clean view */
+    header {visibility: hidden;}
+    footer {visibility: hidden;}
+    
+    /* Sidebar Dark Styling */
+    section[data-testid="stSidebar"] {
+        background-color: #0d1117;
+        border-right: 1px solid #21262d;
+    }
+    
+    /* Custom Input Boxes */
     .stTextInput>div>div>input {
-        background-color: #161b22;
-        color: #58a6ff;
-        border: 1px solid #30363d;
-        border-radius: 8px;
+        background-color: #161b22 !important;
+        color: #58a6ff !important;
+        border: 1px solid #30363d !important;
+        border-radius: 8px !important;
     }
+    
     .stSelectbox>div>div>div {
-        background-color: #161b22;
-        color: #58a6ff;
-        border: 1px solid #30363d;
-        border-radius: 8px;
+        background-color: #161b22 !important;
+        color: #58a6ff !important;
+        border: 1px solid #30363d !important;
+        border-radius: 8px !important;
     }
+
+    /* File Uploader Dark Theme */
+    section[data-testid="stFileUploadDropzone"] {
+        background-color: #161b22 !important;
+        border: 1px dashed #30363d !important;
+        border-radius: 10px !important;
+    }
+    
+    /* Futuristic Glow Button */
     .stButton>button {
-        background: linear-gradient(45deg, #1f6feb, #238636);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-weight: bold;
-        width: 100%;
-        transition: 0.3s;
+        background: linear-gradient(135deg, #0052d4, #4364f7, #6fb1fc) !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 8px !important;
+        font-weight: 700 !important;
+        letter-spacing: 1px !important;
+        padding: 0.6rem 1rem !important;
+        width: 100% !important;
+        box-shadow: 0 4px 15px rgba(67, 100, 247, 0.4) !important;
+        transition: all 0.3s ease !important;
     }
+    
     .stButton>button:hover {
-        opacity: 0.85;
+        box-shadow: 0 6px 20px rgba(67, 100, 247, 0.7) !important;
+        transform: translateY(-1px) !important;
+    }
+
+    /* Response Box Styling */
+    .jarvis-response-box {
+        background-color: #161b22;
+        border: 1px solid #30363d;
+        border-left: 4px solid #58a6ff;
+        border-radius: 8px;
+        padding: 1.2rem;
+        margin-top: 1rem;
+        color: #e6edf3;
+        font-size: 1rem;
+        line-height: 1.6;
     }
     </style>
 """, unsafe_allow_html=True)
 
 st.title("⚡ J.A.R.V.I.S. Core Interface")
-st.caption("Advanced AI Mobile Bridge — Bilingual & Voice Enabled")
+st.caption("Dark Node Architecture — Mobile & Voice Ready")
 
 # Initialize session state for API key
 if "api_key" not in st.session_state:
@@ -58,7 +99,7 @@ if "api_key" not in st.session_state:
     except Exception:
         pass
 
-# Sidebar Settings
+# Sidebar Settings Controls
 with st.sidebar:
     st.markdown("### ⚙️ System Controls")
     
@@ -85,7 +126,6 @@ with st.sidebar:
     st.markdown("---")
     st.info("System Status: **ONLINE** 🟢\nCloud Node: Active")
 
-# Main Interface
 st.markdown("---")
 
 user_input = st.text_input("💬 Command JARVIS (Arabic / English):", placeholder="Type your instruction or question here...")
@@ -131,7 +171,7 @@ if st.button("🚀 EXECUTE COMMAND"):
                 reply_text = response.text
                 
                 st.markdown("### 📋 Response Output:")
-                st.success(reply_text)
+                st.markdown(f'<div class="jarvis-response-box">{reply_text}</div>', unsafe_allow_html=True)
                 
                 # Text-to-speech injection
                 lang_code = "ar-SA" if "Arabic" in language_choice else "en-US"
